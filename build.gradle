@@ -1,0 +1,72 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.1.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'application'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'ru.vyarus.quality' version '3.4.0'
+}
+
+group = 'com.martinvana'
+version = '1.0.0-SNAPSHOT'
+sourceCompatibility = '11'
+
+mainClassName = 'com.martinvana.censorship.Application'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://maven.pkg.github.com/vanam/string-search"
+        credentials {
+            username = project.findProperty("gpr.user")
+            password = project.findProperty("gpr.key")
+        }
+    }
+}
+
+quality {
+    checkstyleVersion = '8.26'
+    autoRegistration = false
+    checkstyle = true
+    configDir = 'config/'
+    consoleReporting = true
+}
+
+ext {
+    junitVersion = '5.5.2'
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
+    // https://mvnrepository.com/artifact/org.zalando/problem-spring-web-starter
+    implementation group: 'org.zalando', name: 'problem-spring-web-starter', version: '0.25.2'
+
+    implementation 'com.martinvana:string-search:1.0.0'
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
